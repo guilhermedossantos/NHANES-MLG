@@ -1,0 +1,27 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r setup, warning=FALSE, message=FALSE}
+library(foreign)
+library(dplyr)
+library(DataExplorer)
+library(purrr)
+
+```
+
+
+```{r}
+#setwd("./NHANES")
+arquivos <- list.files(pattern = ".XPT")
+dados <- map(arquivos, read.xport)
+
+names(dados) <- gsub(".XPT$", "", arquivos)
+#list2env(dados, envir = .GlobalEnv)
+
+#dados2 <- reduce(dados, ~inner_join(.x,.y, by = "SEQN")) Dá merda hard, limitações de memória aqui no note da ence kk 
+
+```
+
+
