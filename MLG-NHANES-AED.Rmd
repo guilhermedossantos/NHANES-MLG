@@ -1,0 +1,71 @@
+---
+title: "NHANES 2015-2016"
+subtitle: "AED"
+date: "18 de junho de 2019"
+author: "Guilherme Santos e Isabelle Oliveira"
+output: html_notebook
+---
+
+```{r}
+library(foreign)
+library(DataExplorer)
+```
+
+
+## Dados
+
+```{r}
+demo <- read.xport("C:\\Users\\ioliveira\\Downloads\\DEMO_I.XPT")
+renda <- read.xport("C:\\Users\\ioliveira\\Downloads\\INQ_I.XPT")
+atvfisica <- read.xport("C:\\Users\\ioliveira\\Downloads\\PAQ_I.XPT")
+diabetes <- read.xport("C:\\Users\\ioliveira\\Downloads\\DIQ_I.XPT")
+```
+
+```{r}
+dados <- inner_join(diabetes[,1:2], demo, by = "SEQN") %>% inner_join(renda, by = "SEQN") %>% inner_join(cigarro, by = "SEQN") %>% 
+  inner_join(atvfisica, by = "SEQN") %>% mutate(DIQ010 = na_if(DIQ010, 9) %>% 
+                                                  na_if(3)) %>% mutate(DIQ010 = ifelse(DIQ010 == 1, 1,0 ))
+```
+
+### Descrição de variáveis
+
+  Acho que podemos começar com essas variáveis. Lembrando que precisa começar com no mínimo 5. Pesquisei algumas coisas para justificar as escolhas delas (precisar estar no relatório). E, provavelmente, vamos reduzindo.
+
+ - DIQ010: Médico disse que O entrevistado tem diabetes (variavél resposta)
+ - RIDAGEYR: idade em anos na entrevista (acho que tem a ver com quanto mais velho maior a probabilidade ne, tem que achar algo para embasar isso)(um possivel: Diabetes em idosos: perfil sócio-demográfico e uso de serviços de saúde; https://www.scielosp.org/scielo.php?pid=S0102-311X2010000100018&script=sci_arttext&tlng=en )
+ - INDFMPIR: Razão entre a renda familiar e a pobreza ( os mais vuneraveis podem tender a ter mais tedencia <http://www.scielo.br/pdf/abc/v88n4/28.pdf/>)
+ - RIAGENDR: Genero (homem tende a estar mais em risco <http://www.scielo.br/pdf/abc/v88n4/28.pdf/>)
+ - DMDEDUC2: nível educacional para maiores de 20 anos (acho que aqui também tem relação com desigualdades sociais)
+ - PAQ635 - Ir usualmente para escola, shopping ou trabalho de bicicleta ou andando (sedentarismo é uma causa quase direta <http://www.scielo.br/pdf/abc/v88n4/28.pdf/> )
+ - PAQ715: Horas usando computador nos últimos 30 dias (tem a ver com sedentarismo também)
+ - INQ320: Como o estrevistado chega ao supermercado (tem a ver com sedentarismo também)
+ - INDFMMPC: Categoria de pobreza mensal familiar (acho que pode ter relação com desigualdades sociais)
+ 
+ Obs: O artigo http://www.scielo.br/pdf/%0D/abem/v47n3/16489.pdf fala sobre causas genéticas, se quisermos usar dados de exame, talvez seja interessante para embasar.
+ 
+### EAD
+
+```{r}
+dados %>% mutate(INQ320 = ifelse(INQ320 %in% c(66,77,99), NA, INQ320)) -> dados
+
+dados %>% select_if(~sum(!is.na(.)) > 0) -> dados
+```
+
+```{r}
+plot_intro(dados)
+plot_histogram(dados) 
+plot_correlation(dados) 
+```
+
+```{r}
+boxplot(dados$RIDAGEYR~ dados$DIQ010)
+boxplot(dados$INDFMPIR~ dados$DIQ010)
+boxplot(dados$RIAGENDR~ dados$DIQ010)
+boxplot(dados$DMDEDUC2~ dados$DIQ010)
+boxplot(dados$PAQ635~ dados$DIQ010)
+boxplot(dados$PAQ715~ dados$DIQ010)
+boxplot(dados$IND310~ dados$DIQ010)
+boxplot(dados$INDFMMPC~ dados$DIQ010)
+```
+
+
