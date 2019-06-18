@@ -43,7 +43,7 @@ dados <- inner_join(diabetes[,1:2], demo, by = "SEQN") %>% inner_join(renda, by 
  
  Obs: O artigo http://www.scielo.br/pdf/%0D/abem/v47n3/16489.pdf fala sobre causas genéticas, se quisermos usar dados de exame, talvez seja interessante para embasar.
  
-### EAD
+### AED
 
 ```{r}
 dados %>% mutate(INQ320 = ifelse(INQ320 %in% c(66,77,99), NA, INQ320)) -> dados
