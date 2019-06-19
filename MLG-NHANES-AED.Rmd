@@ -15,10 +15,11 @@ library(DataExplorer)
 ## Dados
 
 ```{r}
-demo <- read.xport("C:\\Users\\ioliveira\\Downloads\\DEMO_I.XPT")
-renda <- read.xport("C:\\Users\\ioliveira\\Downloads\\INQ_I.XPT")
-atvfisica <- read.xport("C:\\Users\\ioliveira\\Downloads\\PAQ_I.XPT")
-diabetes <- read.xport("C:\\Users\\ioliveira\\Downloads\\DIQ_I.XPT")
+demo <- read.xport("D:\\Users\\guisa\\Downloads\\DEMO_I.XPT")
+renda <- read.xport("D:\\Users\\guisa\\Downloads\\INQ_I.XPT")
+atvfisica <- read.xport("D:\\Users\\guisa\\Downloads\\PAQ_I.XPT")
+diabetes <- read.xport("D:\\Users\\guisa\\Downloads\\DIQ_I.XPT")
+cigarro <- read.xport("D:\\Users\\guisa\\Downloads\\SMQRTU_I.XPT")
 ```
 
 ```{r}
