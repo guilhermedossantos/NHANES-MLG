@@ -9,17 +9,19 @@ output: html_notebook
 ```{r}
 library(foreign)
 library(DataExplorer)
+library(dplyr)
+knitr::opts_knit$set(root.dir = "NHANES")
 ```
 
 
 ## Dados
 
 ```{r}
-demo <- read.xport("D:\\Users\\guisa\\Downloads\\DEMO_I.XPT")
-renda <- read.xport("D:\\Users\\guisa\\Downloads\\INQ_I.XPT")
-atvfisica <- read.xport("D:\\Users\\guisa\\Downloads\\PAQ_I.XPT")
-diabetes <- read.xport("D:\\Users\\guisa\\Downloads\\DIQ_I.XPT")
-cigarro <- read.xport("D:\\Users\\guisa\\Downloads\\SMQRTU_I.XPT")
+demo <- read.xport("NHANES/DEMO_I.XPT")
+renda <- read.xport("NHANES/INQ_I.XPT")
+atvfisica <- read.xport("NHANES/PAQ_I.XPT")
+diabetes <- read.xport("NHANES/DIQ_I.XPT")
+cigarro <- read.xport("NHANES/SMQRTU_I.XPT")
 ```
 
 ```{r}
@@ -49,13 +51,14 @@ dados <- inner_join(diabetes[,1:2], demo, by = "SEQN") %>% inner_join(renda, by 
 ```{r}
 dados %>% mutate(INQ320 = ifelse(INQ320 %in% c(66,77,99), NA, INQ320)) -> dados
 
-dados %>% select_if(~sum(!is.na(.)) > 0) -> dados
+dados %>% select_if(~sum(!is.na(.)) > 300) -> dados
 ```
 
 ```{r}
 plot_intro(dados)
-plot_histogram(dados) 
-plot_correlation(dados) 
+#plot_histogram(dados) #demorando mt
+# plot_bar(dados)
+# plot_correlation(dados) 
 ```
 
 ```{r}
@@ -67,6 +70,34 @@ boxplot(dados$PAQ635~ dados$DIQ010)
 boxplot(dados$PAQ715~ dados$DIQ010)
 boxplot(dados$IND310~ dados$DIQ010)
 boxplot(dados$INDFMMPC~ dados$DIQ010)
+```
+
+```{r}
+dados %>% 
+  rename(idade_anos = RIDAGEYR,
+         diabetes = DIQ010,
+         nivel_edu = DMDEDUC2,
+         rz_rend_pobr = INDFMPIR,
+         sexo = RIAGENDR,
+         comp = PAQ715,
+         tabaco_5d = SMQ681,
+         atv_intensa = PAD615,
+         atv_moderada = PAD630
+         ) -> dados
+
+prov <- dados %>% 
+  select(idade_anos, diabetes, nivel_edu, rz_rend_pobr, sexo, comp, tabaco_5d) %>%
+  mutate(tabaco_5d = ifelse(tabaco_5d > 2, NA, factor(tabaco_5d)),
+         nivel_edu = ifelse(nivel_edu > 5, NA, factor(nivel_edu)),
+         comp = na_if(comp, 99),
+         sexo = factor(sexo))
+         # ,
+         # atv_moderada = na_if(atv_moderada, 9999),
+         # atv_intensa = na_if(atv_intensa, 9999))
+  
+prov <- na.omit(prov)
+modelo1 <- glm(diabetes ~ ., family = binomial, data = prov[, -c(8,9)])
+summary(modelo1)
 ```
 
 
