@@ -17,34 +17,54 @@ knitr::opts_knit$set(root.dir = "NHANES")
 ## Dados
 
 ```{r}
-demo <- read.xport("NHANES/DEMO_I.XPT")
-renda <- read.xport("NHANES/INQ_I.XPT")
-atvfisica <- read.xport("NHANES/PAQ_I.XPT")
-diabetes <- read.xport("NHANES/DIQ_I.XPT")
-cigarro <- read.xport("NHANES/SMQRTU_I.XPT")
+
+demo <- read.xport("C:\\Users\\98isa\\Downloads\\DEMO_I.XPT")
+renda <- read.xport("C:\\Users\\98isa\\Downloads\\INQ_I.XPT")
+atvfisica <- read.xport("C:\\Users\\98isa\\Downloads\\PAQ_I.XPT")
+diabetes <- read.xport("C:\\Users\\98isa\\Downloads\\DIQ_I.XPT")
+cigarro <- read.xport("C:\\Users\\98isa\\Downloads\\SMQRTU_I.XPT")
+alcool <- read.xport("C:\\Users\\98isa\\Downloads\\ALQ_I.XPT")
+drogas <- read.xport("C:\\Users\\98isa\\Downloads\\DUQ_I.XPT")
+sono <- read.xport("C:\\Users\\98isa\\Downloads\\SLQ_I.XPT")
+peso <- read.xport("C:\\Users\\98isa\\Downloads\\WHQ_I.XPT")
 ```
 
 ```{r}
 dados <- inner_join(diabetes[,1:2], demo, by = "SEQN") %>% inner_join(renda, by = "SEQN") %>% inner_join(cigarro, by = "SEQN") %>% 
-  inner_join(atvfisica, by = "SEQN") %>% mutate(DIQ010 = na_if(DIQ010, 9) %>% 
-                                                  na_if(3)) %>% mutate(DIQ010 = ifelse(DIQ010 == 1, 1,0 ))
+  inner_join(atvfisica, by = "SEQN") %>%
+  inner_join(drogas, by = "SEQN") %>%
+  inner_join(sono, by = "SEQN") %>%
+  inner_join(peso, by = "SEQN") %>%
+  mutate(DIQ010 = na_if(DIQ010, 9) %>%                                                   na_if(3)) %>% mutate(DIQ010 = ifelse(DIQ010 == 1, 1,0 ))
 ```
 
-### Descri√ß√£o de vari√°veis
+### DescriÁ„o de vari·veis
 
-  Acho que podemos come√ßar com essas vari√°veis. Lembrando que precisa come√ßar com no m√≠nimo 5. Pesquisei algumas coisas para justificar as escolhas delas (precisar estar no relat√≥rio). E, provavelmente, vamos reduzindo.
+  Acho que podemos comeÁar com essas vari·veis. Lembrando que precisa comeÁar com no mÌnimo 5. Pesquisei algumas coisas para justificar as escolhas delas (precisar estar no relatÛrio). E, provavelmente, vamos reduzindo.
 
- - DIQ010: M√©dico disse que O entrevistado tem diabetes (variav√©l resposta)
- - RIDAGEYR: idade em anos na entrevista (acho que tem a ver com quanto mais velho maior a probabilidade ne, tem que achar algo para embasar isso)(um possivel: Diabetes em idosos: perfil s√≥cio-demogr√°fico e uso de servi√ßos de sa√∫de; https://www.scielosp.org/scielo.php?pid=S0102-311X2010000100018&script=sci_arttext&tlng=en )
- - INDFMPIR: Raz√£o entre a renda familiar e a pobreza ( os mais vuneraveis podem tender a ter mais tedencia <http://www.scielo.br/pdf/abc/v88n4/28.pdf/>)
- - RIAGENDR: Genero (homem tende a estar mais em risco <http://www.scielo.br/pdf/abc/v88n4/28.pdf/>)
- - DMDEDUC2: n√≠vel educacional para maiores de 20 anos (acho que aqui tamb√©m tem rela√ß√£o com desigualdades sociais)
- - PAQ635 - Ir usualmente para escola, shopping ou trabalho de bicicleta ou andando (sedentarismo √© uma causa quase direta <http://www.scielo.br/pdf/abc/v88n4/28.pdf/> )
- - PAQ715: Horas usando computador nos √∫ltimos 30 dias (tem a ver com sedentarismo tamb√©m)
- - INQ320: Como o estrevistado chega ao supermercado (tem a ver com sedentarismo tamb√©m)
- - INDFMMPC: Categoria de pobreza mensal familiar (acho que pode ter rela√ß√£o com desigualdades sociais)
+ - DIQ010: MÈdico disse que O entrevistado tem diabetes (variavÈl resposta);
  
- Obs: O artigo http://www.scielo.br/pdf/%0D/abem/v47n3/16489.pdf fala sobre causas gen√©ticas, se quisermos usar dados de exame, talvez seja interessante para embasar.
+ - RIDAGEYR: idade em anos na entrevista (acho que tem a ver com quanto mais velho maior a probabilidade ne, tem que achar algo para embasar isso)(um possivel: Diabetes em idosos: perfil sÛcio-demogr·fico e uso de serviÁos de sa˙de; https://www.scielosp.org/scielo.php?pid=S0102-311X2010000100018&script=sci_arttext&tlng=en );
+ 
+ - INDFMPIR: Raz„o entre a renda familiar e a pobreza ( os mais vuneraveis podem tender a ter mais tedencia <http://www.scielo.br/pdf/abc/v88n4/28.pdf/>);
+ 
+ - RIAGENDR: Genero (homem tende a estar mais em risco <http://www.scielo.br/pdf/abc/v88n4/28.pdf/>);
+ 
+ - DMDEDUC2: nivel educacional para maiores de 20 anos (acho que aqui tambÈm tem relaÁ„o com desigualdades sociais);
+ 
+ - PAQ715: Horas usando computador nos ultimos 30 dias (tem a ver com sedentarismo tambem);
+ 
+ - INDFMMPC: Categoria de pobreza mensal familiar (acho que pode ter relaÁ„o com desigualdades sociais);
+ 
+ - SMQ681: fumou nos ˙ltimos 5 dias.
+ 
+ - SLQ030: Com que frequÍncia vocÍ ronca?
+ 
+ - SLQ300: Que horas vocÍ costuma dormir?
+ 
+ - SLQ310: Que horas vocÍ costuma acordar?
+ 
+ - WHD020: Peso autorrelatado atual (libras)
  
 ### AED
 
@@ -55,34 +75,17 @@ dados %>% select_if(~sum(!is.na(.)) > 300) -> dados
 ```
 
 ```{r}
-plot_intro(dados)
-#plot_histogram(dados) #demorando mt
-# plot_bar(dados)
-# plot_correlation(dados) 
-```
-
-```{r}
-boxplot(dados$RIDAGEYR~ dados$DIQ010)
-boxplot(dados$INDFMPIR~ dados$DIQ010)
-boxplot(dados$RIAGENDR~ dados$DIQ010)
-boxplot(dados$DMDEDUC2~ dados$DIQ010)
-boxplot(dados$PAQ635~ dados$DIQ010)
-boxplot(dados$PAQ715~ dados$DIQ010)
-boxplot(dados$IND310~ dados$DIQ010)
-boxplot(dados$INDFMMPC~ dados$DIQ010)
-```
-
-```{r}
 dados %>% 
-  rename(idade_anos = RIDAGEYR,
-         diabetes = DIQ010,
+  rename(diabetes = DIQ010,
+         idade_anos = RIDAGEYR,
          nivel_edu = DMDEDUC2,
          rz_rend_pobr = INDFMPIR,
          sexo = RIAGENDR,
          comp = PAQ715,
          tabaco_5d = SMQ681,
-         atv_intensa = PAD615,
-         atv_moderada = PAD630
+         drogas = DUQ200,
+         ronco = SLQ030,
+         peso = WHD020
          ) -> dados
 
 prov <- dados %>% 
@@ -91,12 +94,9 @@ prov <- dados %>%
          nivel_edu = ifelse(nivel_edu > 5, NA, factor(nivel_edu)),
          comp = na_if(comp, 99),
          sexo = factor(sexo))
-         # ,
-         # atv_moderada = na_if(atv_moderada, 9999),
-         # atv_intensa = na_if(atv_intensa, 9999))
   
 prov <- na.omit(prov)
-modelo1 <- glm(diabetes ~ ., family = binomial, data = prov[, -c(8,9)])
+modelo1 <- glm(diabetes ~ ., family = binomial, data = prov)
 summary(modelo1)
 ```
 
