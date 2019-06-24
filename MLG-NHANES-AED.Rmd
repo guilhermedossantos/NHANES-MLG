@@ -166,6 +166,19 @@ summary(modelo2)
 anova(modelo1, modelo2, test = "Chisq")
 ```
 
+```{r}
+eta <- modelo2$linear.predictors
+dados$eta <- eta
+
+modelo_teste <- glm(formula = diabetes ~ idade_anos + rz_rend_pobr + sexo + tabaco_5d + peso + I(eta^2), family = binomial, data = dados)
+summary(modelo_teste)
+```
+
+```{r}
+modelo_teste2 <- glm(formula = diabetes ~ idade_anos + rz_rend_pobr + sexo + tabaco_5d + peso + I(eta^2), family = binomial(link = "cloglog"), data = dados)
+summary(modelo_teste2)
+```
+
 
 
 
