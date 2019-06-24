@@ -10,22 +10,22 @@ output: html_notebook
 library(foreign)
 library(DataExplorer)
 library(dplyr)
-knitr::opts_knit$set(root.dir = "E:\\NHANES")
+#knitr::opts_knit$set(root.dir = "F:\\NHANES")
 ```
 
 
 ## Dados
 
 ```{r}
-demo <- read.xport("E:\\NHANES\\DEMO_I.XPT")
-renda <- read.xport("E:\\NHANES\\INQ_I.XPT")
-atvfisica <- read.xport("E:\\NHANES\\PAQ_I.XPT")
-diabetes <- read.xport("E:\\NHANES\\DIQ_I.XPT")
-cigarro <- read.xport("E:\\NHANES\\SMQRTU_I.XPT")
-alcool <- read.xport("E:\\NHANES\\ALQ_I.XPT")
-drogas <- read.xport("E:\\NHANES\\DUQ_I.XPT")
-sono <- read.xport("E:\\NHANES\\SLQ_I.XPT")
-peso <- read.xport("E:\\NHANES\\WHQ_I.XPT")
+demo <- read.xport("F:\\NHANES\\DEMO_I.XPT")
+renda <- read.xport("F:\\NHANES\\INQ_I.XPT")
+atvfisica <- read.xport("F:\\NHANES\\PAQ_I.XPT")
+diabetes <- read.xport("F:\\NHANES\\DIQ_I.XPT")
+cigarro <- read.xport("F:\\NHANES\\SMQRTU_I.XPT")
+alcool <- read.xport("F:\\NHANES\\ALQ_I.XPT")
+drogas <- read.xport("F:\\NHANES\\DUQ_I.XPT")
+sono <- read.xport("F:\\NHANES\\SLQ_I.XPT")
+peso <- read.xport("F:\\NHANES\\WHQ_I.XPT")
 ```
 
 ```{r}
@@ -39,31 +39,31 @@ dados <- inner_join(diabetes[,1:2], demo, by = "SEQN") %>%
   mutate(DIQ010 = na_if(DIQ010, 9) %>%                                                   na_if(3)) %>% mutate(DIQ010 = ifelse(DIQ010 == 1, 1,0 ))
 ```
 
-### Descrição de variáveis
+### Descri??o de vari?veis
 
-  Acho que podemos começar com essas variáveis. Lembrando que precisa começar com no mínimo 5. Pesquisei algumas coisas para justificar as escolhas delas (precisar estar no relatório). E, provavelmente, vamos reduzindo.
+  Acho que podemos come?ar com essas variÃ¡veis. Lembrando que precisa come?ar com no m?nimo 5. Pesquisei algumas coisas para justificar as escolhas delas (precisar estar no relat?rio). E, provavelmente, vamos reduzindo.
 
- - DIQ010: Médico disse que O entrevistado tem diabetes (variavél resposta);
+ - DIQ010: M?dico disse que O entrevistado tem diabetes (variav?l resposta);
  
- - RIDAGEYR: idade em anos na entrevista (acho que tem a ver com quanto mais velho maior a probabilidade ne, tem que achar algo para embasar isso)(um possivel: Diabetes em idosos: perfil sócio-demográfico e uso de serviços de saúde; https://www.scielosp.org/scielo.php?pid=S0102-311X2010000100018&script=sci_arttext&tlng=en );
+ - RIDAGEYR: idade em anos na entrevista (acho que tem a ver com quanto mais velho maior a probabilidade ne, tem que achar algo para embasar isso)(um possivel: Diabetes em idosos: perfil s?cio-demogr?fico e uso de servi?os de sa?de; https://www.scielosp.org/scielo.php?pid=S0102-311X2010000100018&script=sci_arttext&tlng=en );
  
- - INDFMPIR: Razão entre a renda familiar e a pobreza ( os mais vuneraveis podem tender a ter mais tedencia <http://www.scielo.br/pdf/abc/v88n4/28.pdf/>);
+ - INDFMPIR: Raz?o entre a renda familiar e a pobreza ( os mais vuneraveis podem tender a ter mais tedencia <http://www.scielo.br/pdf/abc/v88n4/28.pdf/>);
  
  - RIAGENDR: Genero (homem tende a estar mais em risco <http://www.scielo.br/pdf/abc/v88n4/28.pdf/>);
  
- - DMDEDUC2: nivel educacional para maiores de 20 anos (acho que aqui também tem relação com desigualdades sociais);
+ - DMDEDUC2: nivel educacional para maiores de 20 anos (acho que aqui tamb?m tem rela??o com desigualdades sociais);
  
  - PAQ715: Horas usando computador nos ultimos 30 dias (tem a ver com sedentarismo tambem);
  
- - INDFMMPC: Categoria de pobreza mensal familiar (acho que pode ter relação com desigualdades sociais);
+ - INDFMMPC: Categoria de pobreza mensal familiar (acho que pode ter rela??o com desigualdades sociais);
  
- - SMQ681: fumou nos últimos 5 dias.
+ - SMQ681: fumou nos ?ltimos 5 dias.
  
- - SLQ030: Com que frequência você ronca?
+ - SLQ030: Com que frequ?ncia voc? ronca?
  
- - SLQ300: Que horas você costuma dormir?
+ - SLQ300: Que horas voc? costuma dormir?
  
- - SLQ310: Que horas você costuma acordar?
+ - SLQ310: Que horas voc? costuma acordar?
  
  - WHD020: Peso autorrelatado atual (libras)
  
@@ -74,9 +74,10 @@ dados %>% mutate(INQ320 = ifelse(INQ320 %in% c(66,77,99), NA, INQ320),
                  SLQ030 = ifelse(SLQ030 >= 7, NA, SLQ030),
                  DMDEDUC2 = ifelse(DMDEDUC2 >= 7, NA, DMDEDUC2),
                  WHD020 = ifelse(WHD020 >= 7777, NA, WHD020),
-                 PAQ715 = ifelse(PAQ715 >= 7777, NA, PAQ715)) -> dados
+                 PAQ715 = ifelse(PAQ715 >= 7777, NA, PAQ715),
+                 PAQ650 = ifelse(PAQ650 >= 7, NA, PAQ650)) -> dados
 
-dados %>% select_if(~sum(!is.na(.)) > 300) -> dados
+dados %>% select_if(~sum(!is.na(.)) > 100) -> dados
 ```
 
 ```{r}
@@ -91,18 +92,23 @@ dados %>%
          drogas = DUQ200,
          ronco = SLQ030,
          peso = WHD020,
-         horas_sono = SLD012
+         horas_sono = SLD012,
+         atv_recr_int = PAQ650
          ) %>% 
   select(diabetes, idade_anos, nivel_edu, rz_rend_pobr,
          sexo, comp, tabaco_5d, drogas, ronco,
-         peso, horas_sono) %>% 
+         peso, horas_sono, atv_recr_int) %>% 
   mutate(diabetes = as.factor(diabetes),
          tabaco_5d = na_if(tabaco_5d, 7) %>%  na_if(9) %>%
-                     factor(.,labels = c("Sim", "Não")),
+                     factor(.,labels = c("Sim", "NÃ£o")),
          ronco = as.factor(ronco),
          nivel_edu = as.factor(nivel_edu), 
+         drogas = ifelse(drogas >= 7, NA, drogas),
          marijuana = as.factor(drogas),
-         comp = factor(comp, labels = c("<1",as.character(1:5), ">5", "0"))) %>%   select(-drogas) -> dados
+         comp = factor(comp, labels = c("<1",as.character(1:5), ">5", "0")),
+         sexo = factor(sexo, labels = c("Maculino", "Feminino")),
+         atv_recr_int = factor(atv_recr_int, 
+                               labels = c("Sim", "NÃ£o"))) %>%   select(-drogas) -> dados
 
 plot_intro(dados)
 ```
@@ -116,19 +122,21 @@ dados <- na.omit(dados)
 ```{r}
 plot_histogram(dados)
 ```
+```{r}
+plot_boxplot(dados, by = "diabetes")    
+```
+  A variÃ¡vel que melhor parece discriminar Ã© a idade, seguida do Peso.
+
 
 ```{r}
-plot_bar(dados)
+plot_bar(dados, order_bar = T)
 ```
+
 
 ```{r}
 plot_correlation(dados)
 ```
-  Correlações baixas no geral, observamos correlações altas somente entre as variáveis que são níveis diferentes do mesmo fator, e uma leve correlação entre marijuana e uso de tabaco.
-  
-```{r}
-plot_boxplot(dados, by = "diabetes")    
-```
+  CorrelaÃ§Ãµes baixas no geral, observamos correlaÃ§Ãµes altas somente entre as variÃ¡veis que sÃ£o nÃ­veis diferentes do mesmo fator, e uma leve correlaÃ§Ã£o entre marijuana e uso de tabaco.
 
 ```{r}
 plot_qq(dados, by = "diabetes")
@@ -136,16 +144,28 @@ plot_qq(dados, by = "diabetes")
 
 
 ```{r}
-
-prov <- dados %>% 
-  select(idade_anos, diabetes, nivel_edu, rz_rend_pobr, sexo, comp, tabaco_5d) %>%
-  mutate(tabaco_5d = ifelse(tabaco_5d > 2, as.factor(NA), factor(tabaco_5d)),
-         nivel_edu = ifelse(nivel_edu > 5, NA, factor(nivel_edu)),
-         comp = na_if(comp, 99),
-         sexo = factor(sexo))
+# prov <- dados %>% 
+#   select(idade_anos, diabetes, nivel_edu, rz_rend_pobr, sexo, comp, tabaco_5d) %>%
+#   mutate(tabaco_5d = ifelse(tabaco_5d > 2, as.factor(NA), factor(tabaco_5d)),
+#          nivel_edu = ifelse(nivel_edu > 5, NA, factor(nivel_edu)),
+#          comp = na_if(comp, 99),
+#          sexo = factor(sexo))
   
 modelo1 <- glm(diabetes ~ ., family = binomial, data = dados)
 summary(modelo1)
 ```
+  
+  Temos um modelo com muitas variÃ¡veis explicativas nÃ£o significativas, o que nÃ£o Ã© o ideal.
+
+```{r}
+step(modelo1) -> modelo2
+summary(modelo2)
+```
+
+```{r}
+anova(modelo1, modelo2, test = "Chisq")
+```
+
+
 
 
