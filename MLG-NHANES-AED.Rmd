@@ -10,27 +10,28 @@ output: html_notebook
 library(foreign)
 library(DataExplorer)
 library(dplyr)
-knitr::opts_knit$set(root.dir = "NHANES")
+knitr::opts_knit$set(root.dir = "E:\\NHANES")
 ```
 
 
 ## Dados
 
 ```{r}
-
-demo <- read.xport("C:\\Users\\98isa\\Downloads\\DEMO_I.XPT")
-renda <- read.xport("C:\\Users\\98isa\\Downloads\\INQ_I.XPT")
-atvfisica <- read.xport("C:\\Users\\98isa\\Downloads\\PAQ_I.XPT")
-diabetes <- read.xport("C:\\Users\\98isa\\Downloads\\DIQ_I.XPT")
-cigarro <- read.xport("C:\\Users\\98isa\\Downloads\\SMQRTU_I.XPT")
-alcool <- read.xport("C:\\Users\\98isa\\Downloads\\ALQ_I.XPT")
-drogas <- read.xport("C:\\Users\\98isa\\Downloads\\DUQ_I.XPT")
-sono <- read.xport("C:\\Users\\98isa\\Downloads\\SLQ_I.XPT")
-peso <- read.xport("C:\\Users\\98isa\\Downloads\\WHQ_I.XPT")
+demo <- read.xport("E:\\NHANES\\DEMO_I.XPT")
+renda <- read.xport("E:\\NHANES\\INQ_I.XPT")
+atvfisica <- read.xport("E:\\NHANES\\PAQ_I.XPT")
+diabetes <- read.xport("E:\\NHANES\\DIQ_I.XPT")
+cigarro <- read.xport("E:\\NHANES\\SMQRTU_I.XPT")
+alcool <- read.xport("E:\\NHANES\\ALQ_I.XPT")
+drogas <- read.xport("E:\\NHANES\\DUQ_I.XPT")
+sono <- read.xport("E:\\NHANES\\SLQ_I.XPT")
+peso <- read.xport("E:\\NHANES\\WHQ_I.XPT")
 ```
 
 ```{r}
-dados <- inner_join(diabetes[,1:2], demo, by = "SEQN") %>% inner_join(renda, by = "SEQN") %>% inner_join(cigarro, by = "SEQN") %>% 
+dados <- inner_join(diabetes[,1:2], demo, by = "SEQN") %>% 
+  inner_join(renda, by = "SEQN") %>% 
+  inner_join(cigarro, by = "SEQN") %>% 
   inner_join(atvfisica, by = "SEQN") %>%
   inner_join(drogas, by = "SEQN") %>%
   inner_join(sono, by = "SEQN") %>%
@@ -69,13 +70,17 @@ dados <- inner_join(diabetes[,1:2], demo, by = "SEQN") %>% inner_join(renda, by 
 ### AED
 
 ```{r}
-dados %>% mutate(INQ320 = ifelse(INQ320 %in% c(66,77,99), NA, INQ320)) -> dados
+dados %>% mutate(INQ320 = ifelse(INQ320 %in% c(66,77,99), NA, INQ320),
+                 SLQ030 = ifelse(SLQ030 >= 7, NA, SLQ030),
+                 DMDEDUC2 = ifelse(DMDEDUC2 >= 7, NA, DMDEDUC2),
+                 WHD020 = ifelse(WHD020 >= 7777, NA, WHD020),
+                 PAQ715 = ifelse(PAQ715 >= 7777, NA, PAQ715)) -> dados
 
 dados %>% select_if(~sum(!is.na(.)) > 300) -> dados
 ```
 
 ```{r}
-dados %>% 
+dados %>%  
   rename(diabetes = DIQ010,
          idade_anos = RIDAGEYR,
          nivel_edu = DMDEDUC2,
@@ -85,18 +90,61 @@ dados %>%
          tabaco_5d = SMQ681,
          drogas = DUQ200,
          ronco = SLQ030,
-         peso = WHD020
-         ) -> dados
+         peso = WHD020,
+         horas_sono = SLD012
+         ) %>% 
+  select(diabetes, idade_anos, nivel_edu, rz_rend_pobr,
+         sexo, comp, tabaco_5d, drogas, ronco,
+         peso, horas_sono) %>% 
+  mutate(diabetes = as.factor(diabetes),
+         tabaco_5d = na_if(tabaco_5d, 7) %>%  na_if(9) %>%
+                     factor(.,labels = c("Sim", "Não")),
+         ronco = as.factor(ronco),
+         nivel_edu = as.factor(nivel_edu), 
+         marijuana = as.factor(drogas),
+         comp = factor(comp, labels = c("<1",as.character(1:5), ">5", "0"))) %>%   select(-drogas) -> dados
+
+plot_intro(dados)
+```
+
+```{r}
+# Removendo NA's
+dados <- na.omit(dados)
+```
+
+
+```{r}
+plot_histogram(dados)
+```
+
+```{r}
+plot_bar(dados)
+```
+
+```{r}
+plot_correlation(dados)
+```
+  Correlações baixas no geral, observamos correlações altas somente entre as variáveis que são níveis diferentes do mesmo fator, e uma leve correlação entre marijuana e uso de tabaco.
+  
+```{r}
+plot_boxplot(dados, by = "diabetes")    
+```
+
+```{r}
+plot_qq(dados, by = "diabetes")
+```
+
+
+```{r}
 
 prov <- dados %>% 
   select(idade_anos, diabetes, nivel_edu, rz_rend_pobr, sexo, comp, tabaco_5d) %>%
-  mutate(tabaco_5d = ifelse(tabaco_5d > 2, NA, factor(tabaco_5d)),
+  mutate(tabaco_5d = ifelse(tabaco_5d > 2, as.factor(NA), factor(tabaco_5d)),
          nivel_edu = ifelse(nivel_edu > 5, NA, factor(nivel_edu)),
          comp = na_if(comp, 99),
          sexo = factor(sexo))
   
-prov <- na.omit(prov)
-modelo1 <- glm(diabetes ~ ., family = binomial, data = prov)
+modelo1 <- glm(diabetes ~ ., family = binomial, data = dados)
 summary(modelo1)
 ```
 
