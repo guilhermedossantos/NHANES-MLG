@@ -3,24 +3,24 @@ Trabalho de Modelos Lineares Generalizados utilizando dados da NHANES para preve
 Dados disponíveis em: https://wwwn.cdc.gov/nchs/nhanes/ContinuousNhanes/Default.aspx?BeginYear=2015
 
 Descrição das variáveis:
- - DIQ010: Medico disse que o entrevistado tem diabetes (variavel resposta - 1:Sim; 0:Não);
+ - DIQ010(diabetes): Medico disse que o entrevistado tem diabetes (variavel resposta - 1:Sim; 0:Não);
  
- - RIDAGEYR: idade em anos na entrevista.
+ - RIDAGEYR(idade_anos): idade em anos na entrevista.
  
- - INDFMPIR: Razao entre a renda familiar e a pobreza.
+ - INDFMPIR(rz_rend_pobr): Razao entre a renda familiar e a pobreza.
  
- - RIAGENDR: Genero. 
+ - RIAGENDR(sexo): Genero. 
  
- - DMDEDUC2: nivel educacional para maiores de 20 anos. 
+ - DMDEDUC2(nivel_edu): nivel educacional para maiores de 20 anos. 
  
- - PAQ715: Horas usando computador nos ultimos 30 dias.
+ - PAQ715(comp): Horas usando computador nos ultimos 30 dias.
  
- - SMQ681: fumou nos ultimos 5 dias.
+ - SMQ681(tabaco_5d): fumou nos ultimos 5 dias.
  
- - SLQ030: Com que frequencia voce ronca?
+ - SLQ030(ronco): Com que frequencia voce ronca?
  
- - WHD020: Peso autorrelatado atual (libras).
+ - WHD020(peso): Peso autorrelatado atual (libras).
  
- - SLD012: Quantas horas voce costuma dormir?
+ - SLD012(horas_sono): Quantas horas voce costuma dormir?
  
- - DUQ200: Já usou maconha ou haxixi (1:Sim e 2:Não).
+ - DUQ200(marijuana): Já usou maconha ou haxixi (1:Sim e 2:Não).
