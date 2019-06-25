@@ -17,15 +17,15 @@ library(dplyr)
 ## Dados
 
 ```{r}
-demo <- read.xport("E:\\NHANES\\DEMO_I.XPT")
-renda <- read.xport("E:\\NHANES\\INQ_I.XPT")
-atvfisica <- read.xport("E:\\NHANES\\PAQ_I.XPT")
-diabetes <- read.xport("E:\\NHANES\\DIQ_I.XPT")
-cigarro <- read.xport("E:\\NHANES\\SMQRTU_I.XPT")
-alcool <- read.xport("E:\\NHANES\\ALQ_I.XPT")
-drogas <- read.xport("E:\\NHANES\\DUQ_I.XPT")
-sono <- read.xport("E:\\NHANES\\SLQ_I.XPT")
-peso <- read.xport("E:\\NHANES\\WHQ_I.XPT")
+demo <- read.xport("C:\\Users\\ioliveira\\Downloads\\DEMO_I.XPT")
+renda <- read.xport("C:\\Users\\ioliveira\\Downloads\\INQ_I.XPT")
+atvfisica <- read.xport("C:\\Users\\ioliveira\\Downloads\\PAQ_I.XPT")
+diabetes <- read.xport("C:\\Users\\ioliveira\\Downloads\\DIQ_I.XPT")
+cigarro <- read.xport("C:\\Users\\ioliveira\\Downloads\\SMQRTU_I.XPT")
+alcool <- read.xport("C:\\Users\\ioliveira\\Downloads\\ALQ_I.XPT")
+drogas <- read.xport("C:\\Users\\ioliveira\\Downloads\\DUQ_I.XPT")
+sono <- read.xport("C:\\Users\\ioliveira\\Downloads\\SLQ_I.XPT")
+peso <- read.xport("C:\\Users\\ioliveira\\Downloads\\WHQ_I.XPT")
 ```
 
 ```{r}
@@ -36,37 +36,10 @@ dados <- inner_join(diabetes[,1:2], demo, by = "SEQN") %>%
   inner_join(drogas, by = "SEQN") %>%
   inner_join(sono, by = "SEQN") %>%
   inner_join(peso, by = "SEQN") %>%
-  mutate(DIQ010 = na_if(DIQ010, 9) %>%                                                   na_if(3)) %>% mutate(DIQ010 = ifelse(DIQ010 == 1, 1,0 ))
+  mutate(DIQ010 = na_if(DIQ010, 9) %>%                                                   
+           na_if(3)) %>% mutate(DIQ010 = ifelse(DIQ010 == 1, 1,0 ))
 ```
 
-### Descri??o de vari?veis
-
-  Acho que podemos come?ar com essas variáveis. Lembrando que precisa come?ar com no m?nimo 5. Pesquisei algumas coisas para justificar as escolhas delas (precisar estar no relat?rio). E, provavelmente, vamos reduzindo.
-
- - DIQ010: M?dico disse que O entrevistado tem diabetes (variav?l resposta);
- 
- - RIDAGEYR: idade em anos na entrevista (acho que tem a ver com quanto mais velho maior a probabilidade ne, tem que achar algo para embasar isso)(um possivel: Diabetes em idosos: perfil s?cio-demogr?fico e uso de servi?os de sa?de; https://www.scielosp.org/scielo.php?pid=S0102-311X2010000100018&script=sci_arttext&tlng=en );
- 
- - INDFMPIR: Raz?o entre a renda familiar e a pobreza ( os mais vuneraveis podem tender a ter mais tedencia <http://www.scielo.br/pdf/abc/v88n4/28.pdf/>);
- 
- - RIAGENDR: Genero (homem tende a estar mais em risco <http://www.scielo.br/pdf/abc/v88n4/28.pdf/>);
- 
- - DMDEDUC2: nivel educacional para maiores de 20 anos (acho que aqui tamb?m tem rela??o com desigualdades sociais);
- 
- - PAQ715: Horas usando computador nos ultimos 30 dias (tem a ver com sedentarismo tambem);
- 
- - INDFMMPC: Categoria de pobreza mensal familiar (acho que pode ter rela??o com desigualdades sociais);
- 
- - SMQ681: fumou nos ?ltimos 5 dias.
- 
- - SLQ030: Com que frequ?ncia voc? ronca?
- 
- - SLQ300: Que horas voc? costuma dormir?
- 
- - SLQ310: Que horas voc? costuma acordar?
- 
- - WHD020: Peso autorrelatado atual (libras)
- 
 ### AED
 
 ```{r}
@@ -76,7 +49,6 @@ dados %>% mutate(INQ320 = ifelse(INQ320 %in% c(66,77,99), NA, INQ320),
                  WHD020 = ifelse(WHD020 >= 7777, NA, WHD020),
                  PAQ715 = ifelse(PAQ715 >= 7777, NA, PAQ715),
                  PAQ650 = ifelse(PAQ650 >= 7, NA, PAQ650)) -> dados
-
 dados %>% select_if(~sum(!is.na(.)) > 100) -> dados
 ```
 
@@ -109,7 +81,6 @@ dados %>%
          sexo = factor(sexo, labels = c("Maculino", "Feminino")),
          atv_recr_int = factor(atv_recr_int, 
                                labels = c("Sim", "Não"))) %>%   select(-drogas) -> dados
-
 plot_intro(dados)
 ```
 
@@ -146,7 +117,6 @@ plot_qq(dados, by = "diabetes")
 
 ## Modelo inicial com todas as variáveis
 ```{r}
-
 modelo1 <- glm(diabetes ~ ., family = binomial, data = dados)
 summary(modelo1)
 ```
@@ -165,7 +135,6 @@ anova(modelo1, modelo2, test = "Chisq")
 ```{r}
 eta <- modelo2$linear.predictors
 dados$eta <- eta
-
 modelo_teste <- glm(formula = diabetes ~ idade_anos + rz_rend_pobr + sexo + tabaco_5d + peso + I(eta^2), family = binomial, data = dados)
 summary(modelo_teste)
 ```
@@ -192,6 +161,23 @@ lines(lowess(modelo_teste2$linear.predictors,zh) )
 table(dados$tabaco_5d, dados$diabetes)
 ```
 
+##### testar para ver se retirando sexo fica melhor
 
+```{r}
+modelo3 <- glm(formula = diabetes ~ idade_anos + rz_rend_pobr + tabaco_5d + 
+    peso, family = binomial, data = dados)
+
+anova(modelo2,modelo3, test = "Chisq")
+
+eta <- modelo3$linear.predictors
+dados$eta <- eta
+modelo_teste <- glm(formula = diabetes ~ idade_anos + rz_rend_pobr + tabaco_5d + peso + I(eta^2), family = binomial, data = dados)
+summary(modelo_teste)
+```
+
+```{r}
+zh= modelo3$linear.predictors + residuals(modelo3,"working")
+plot(modelo3$linear.predictors,zh, pch = 19)
+```
 
 
