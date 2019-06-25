@@ -10,22 +10,22 @@ output: html_notebook
 library(foreign)
 library(DataExplorer)
 library(dplyr)
-#knitr::opts_knit$set(root.dir = "F:\\NHANES")
+#knitr::opts_knit$set(root.dir = "E:\\NHANES")
 ```
 
 
 ## Dados
 
 ```{r}
-demo <- read.xport("F:\\NHANES\\DEMO_I.XPT")
-renda <- read.xport("F:\\NHANES\\INQ_I.XPT")
-atvfisica <- read.xport("F:\\NHANES\\PAQ_I.XPT")
-diabetes <- read.xport("F:\\NHANES\\DIQ_I.XPT")
-cigarro <- read.xport("F:\\NHANES\\SMQRTU_I.XPT")
-alcool <- read.xport("F:\\NHANES\\ALQ_I.XPT")
-drogas <- read.xport("F:\\NHANES\\DUQ_I.XPT")
-sono <- read.xport("F:\\NHANES\\SLQ_I.XPT")
-peso <- read.xport("F:\\NHANES\\WHQ_I.XPT")
+demo <- read.xport("E:\\NHANES\\DEMO_I.XPT")
+renda <- read.xport("E:\\NHANES\\INQ_I.XPT")
+atvfisica <- read.xport("E:\\NHANES\\PAQ_I.XPT")
+diabetes <- read.xport("E:\\NHANES\\DIQ_I.XPT")
+cigarro <- read.xport("E:\\NHANES\\SMQRTU_I.XPT")
+alcool <- read.xport("E:\\NHANES\\ALQ_I.XPT")
+drogas <- read.xport("E:\\NHANES\\DUQ_I.XPT")
+sono <- read.xport("E:\\NHANES\\SLQ_I.XPT")
+peso <- read.xport("E:\\NHANES\\WHQ_I.XPT")
 ```
 
 ```{r}
@@ -122,6 +122,8 @@ dados <- na.omit(dados)
 ```{r}
 plot_histogram(dados)
 ```
+
+
 ```{r}
 plot_boxplot(dados, by = "diabetes")    
 ```
@@ -142,20 +144,14 @@ plot_correlation(dados)
 plot_qq(dados, by = "diabetes")
 ```
 
-
+## Modelo inicial com todas as variáveis
 ```{r}
-# prov <- dados %>% 
-#   select(idade_anos, diabetes, nivel_edu, rz_rend_pobr, sexo, comp, tabaco_5d) %>%
-#   mutate(tabaco_5d = ifelse(tabaco_5d > 2, as.factor(NA), factor(tabaco_5d)),
-#          nivel_edu = ifelse(nivel_edu > 5, NA, factor(nivel_edu)),
-#          comp = na_if(comp, 99),
-#          sexo = factor(sexo))
-  
+
 modelo1 <- glm(diabetes ~ ., family = binomial, data = dados)
 summary(modelo1)
 ```
   
-  Temos um modelo com muitas variáveis explicativas não significativas, o que não é o ideal.
+  Temos um modelo com muitas variáveis explicativas não significativas, o que não é o ideal. Portanto adotamos um procedimento stepwise de seleção de variáveis.
 
 ```{r}
 step(modelo1) -> modelo2
@@ -175,8 +171,25 @@ summary(modelo_teste)
 ```
 
 ```{r}
-modelo_teste2 <- glm(formula = diabetes ~ idade_anos + rz_rend_pobr + sexo + tabaco_5d + peso + I(eta^2), family = binomial(link = "cloglog"), data = dados)
+modelo_teste2 <- glm(formula = diabetes ~ idade_anos + rz_rend_pobr + sexo + tabaco_5d + peso + I(eta^2), family = binomial(link = "probit"), data = dados)
 summary(modelo_teste2)
+```
+
+  Probit rejeita melhor, temos que flr com ela?
+```{r}
+zh= modelo2$linear.predictors + residuals(modelo2,"working")
+plot(modelo2$linear.predictors,zh, pch = 19)
+```
+
+```{r}
+zh= modelo_teste2$linear.predictors+residuals(modelo_teste2,"working")
+plot(modelo_teste2$linear.predictors,zh,cex=1.5,pch=19)
+lines(lowess(modelo_teste2$linear.predictors,zh) )
+```
+
+
+```{r}
+table(dados$tabaco_5d, dados$diabetes)
 ```
 
 
