@@ -174,7 +174,7 @@ anova(modelo3, modelo2, test = "Chisq")
 eta <- modelo3$linear.predictors
 dados$eta <- eta
 modelo_teste <- glm(formula = diabetes ~ idade_anos + rz_rend_pobr + tabaco_5d + peso + I(eta^2), family = binomial, data = dados)
-summary(modelo_teste)
+summary(modelo3)
 ```
   
   Aic menor e rejeita inclusão de eta^2 melhor
@@ -224,8 +224,7 @@ tab
 ```{r}
 classificacao2 <- ifelse(probs > 0.5, 1, 0)
 
-table(classificacao2, dados$diabetes)
-
+table(classificacao2, dados$diabetes) %>% kable("latex") 
 ```
 
 ```{r}
