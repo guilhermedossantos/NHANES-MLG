@@ -13,26 +13,29 @@ library(foreign)
 library(DataExplorer)
 library(dplyr)
 library(pscl)
-#knitr::opts_knit$set(root.dir = "NHANES\\")
+library(questionr)
+library(knitr)
+#knitr::opts_knit$set(root.dir = "D:\\NHANES\\")
 ```
 
 
 ## Dados
 
 ```{r}
-demo <- read.xport("NHANES\\DEMO_I.XPT")
-renda <- read.xport("NHANES\\INQ_I.XPT")
-atvfisica <- read.xport("NHANES\\PAQ_I.XPT")
-diabetes <- read.xport("NHANES\\DIQ_I.XPT")
-cigarro <- read.xport("NHANES\\SMQRTU_I.XPT")
-alcool <- read.xport("NHANES\\ALQ_I.XPT")
-drogas <- read.xport("NHANES\\DUQ_I.XPT")
-sono <- read.xport("NHANES\\SLQ_I.XPT")
-peso <- read.xport("NHANES\\WHQ_I.XPT")
+demo <- read.xport("D:\\NHANES\\DEMO_I.XPT")
+renda <- read.xport("D:\\NHANES\\INQ_I.XPT")
+atvfisica <- read.xport("D:\\NHANES\\PAQ_I.XPT")
+diabetes <- read.xport("D:\\NHANES\\DIQ_I.XPT")
+cigarro <- read.xport("D:\\NHANES\\SMQRTU_I.XPT")
+alcool <- read.xport("D:\\NHANES\\ALQ_I.XPT")
+drogas <- read.xport("D:\\NHANES\\DUQ_I.XPT")
+sono <- read.xport("D:\\NHANES\\SLQ_I.XPT")
+peso <- read.xport("D:\\NHANES\\WHQ_I.XPT")
 ```
 
 ```{r}
-dados <- inner_join(diabetes[,1:2], demo, by = "SEQN") %>% 
+dados <- 
+  inner_join(diabetes[,1:2], demo, by = "SEQN") %>% 
   inner_join(renda, by = "SEQN") %>% 
   inner_join(cigarro, by = "SEQN") %>% 
   inner_join(atvfisica, by = "SEQN") %>%
@@ -214,21 +217,34 @@ corte <- obj$Cutoff[m]
 
 
 ```{r}
+library(knitr)
+
 probs <- modelo3$fitted.values
 
 classificacao <- ifelse(probs > corte, 1, 0)
 
 tab <- table(classificacao, dados$diabetes)
-tab
+tab %>% kable("latex")
 ```
 
 ```{r}
 classificacao2 <- ifelse(probs > 0.5, 1, 0)
-
-table(classificacao2, dados$diabetes) 
+ 
+table(classificacao2, dados$diabetes) %>% kable("latex")
 ```
 
+## ODDS RATIO
 ```{r}
 
+or <- exp(coef(modelo3))
+or
 ```
+
+
+```{r}
+as.data.frame(odds.ratio(modelo3))[,1:3] %>% kable("latex")
+```
+
+
+
 
