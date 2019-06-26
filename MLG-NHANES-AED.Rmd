@@ -12,22 +12,23 @@ subtitle: AED
 library(foreign)
 library(DataExplorer)
 library(dplyr)
-#knitr::opts_knit$set(root.dir = "E:\\NHANES\\")
+library(pscl)
+#knitr::opts_knit$set(root.dir = "NHANES\\")
 ```
 
 
 ## Dados
 
 ```{r}
-demo <- read.xport("E:\\NHANES\\DEMO_I.XPT")
-renda <- read.xport("E:\\NHANES\\INQ_I.XPT")
-atvfisica <- read.xport("E:\\NHANES\\PAQ_I.XPT")
-diabetes <- read.xport("E:\\NHANES\\DIQ_I.XPT")
-cigarro <- read.xport("E:\\NHANES\\SMQRTU_I.XPT")
-alcool <- read.xport("E:\\NHANES\\ALQ_I.XPT")
-drogas <- read.xport("E:\\NHANES\\DUQ_I.XPT")
-sono <- read.xport("E:\\NHANES\\SLQ_I.XPT")
-peso <- read.xport("E:\\NHANES\\WHQ_I.XPT")
+demo <- read.xport("NHANES\\DEMO_I.XPT")
+renda <- read.xport("NHANES\\INQ_I.XPT")
+atvfisica <- read.xport("NHANES\\PAQ_I.XPT")
+diabetes <- read.xport("NHANES\\DIQ_I.XPT")
+cigarro <- read.xport("NHANES\\SMQRTU_I.XPT")
+alcool <- read.xport("NHANES\\ALQ_I.XPT")
+drogas <- read.xport("NHANES\\DUQ_I.XPT")
+sono <- read.xport("NHANES\\SLQ_I.XPT")
+peso <- read.xport("NHANES\\WHQ_I.XPT")
 ```
 
 ```{r}
@@ -131,7 +132,7 @@ summary(modelo2)
 ```
 
 ```{r}
-anova(modelo1, modelo2, test = "Chisq")
+anova(modelo2, modelo1, test = "Chisq")
 ```
 
 ```{r}
@@ -146,7 +147,7 @@ modelo_teste2 <- glm(formula = diabetes ~ idade_anos + rz_rend_pobr + sexo + tab
 summary(modelo_teste2)
 ```
 
-  Probit rejeita melhor, temos que flr com ela?
+  
 ```{r}
 zh= modelo2$linear.predictors + residuals(modelo2,"working")
 plot(modelo2$linear.predictors,zh, pch = 19)
@@ -224,7 +225,7 @@ tab
 ```{r}
 classificacao2 <- ifelse(probs > 0.5, 1, 0)
 
-table(classificacao2, dados$diabetes) %>% kable("latex") 
+table(classificacao2, dados$diabetes) 
 ```
 
 ```{r}
